@@ -89,6 +89,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\Attributes\HelpAttribute.cs" />
+    <Compile Include="Assets\Scripts\Attributes\OptionAttribute.cs" />
+    <Compile Include="Assets\Scripts\JsonHelper.cs" />
+    <Compile Include="Assets\Scripts\Maps\DoubleMap.cs" />
+    <Compile Include="Assets\Scripts\Maps\MultiMap.cs" />
+    <Compile Include="Assets\Scripts\Maps\QueueDictionary.cs" />
+    <Compile Include="Assets\Scripts\Maps\Templating\TemplateSystem.cs" />
+    <Compile Include="Assets\Scripts\Maps\UnOrderMultiMap.cs" />
+    <Compile Include="Assets\Scripts\Shell\ShFile.cs" />
+    <Compile Include="Assets\Scripts\Shell\Shell.cs" />
+    <Compile Include="Assets\Scripts\Shell\User32Dll.cs" />
     <Compile Include="Assets\Scripts\Utils\BitUtils.cs" />
     <Compile Include="Assets\Scripts\Utils\ColorUtil.cs" />
     <Compile Include="Assets\Scripts\Utils\DebugExtend.cs" />

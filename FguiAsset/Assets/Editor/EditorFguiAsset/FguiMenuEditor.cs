@@ -11,8 +11,6 @@ namespace EditorFguiAssets
 		[MenuItem("Fgui资源/测试设置")]
 		public static void TestSetting()
 		{
-            Debug.Log( Path.GetFullPath(FguiSetting.Instance.fguiProject) );
-            Debug.Log( Path.GetFullPath(FguiSetting.Instance.layaProject) );
         }
 
 
@@ -20,6 +18,13 @@ namespace EditorFguiAssets
         public static void OpenFindSimpleFile()
         {
             FguiSimpleFileEditorWindow.Open();
+        }
+
+
+        [MenuItem("Fgui资源/清理没用到的文件")]
+        public static void OpenClearNoUse()
+        {
+            FguiClearNoUseEditorWindow.Open();
         }
 
 

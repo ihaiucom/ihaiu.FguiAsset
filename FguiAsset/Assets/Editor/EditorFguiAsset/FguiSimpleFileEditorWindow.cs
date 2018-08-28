@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Xml;
 using UnityEditor;
 using UnityEngine;
 /** 
@@ -40,7 +41,23 @@ namespace EditorFguiAssets
 Sound
 BlackSkin";
 
-        List<List<FileData>> list = new List<List<FileData>>();
+        // 代码引用
+        private string codeUsesStr = "";
+//@"Common/guis/guis_cooperation/icon_reward_lv1_1.png
+//Common/guis/guis_cooperation/icon_reward_lv1_2.png
+//Common/guis/guis_cooperation/icon_reward_lv1_3.png
+//Common/guis/guis_cooperation/icon_reward_lv2_1.png
+//Common/guis/guis_cooperation/icon_reward_lv2_2.png
+//Common/guis/guis_cooperation/icon_reward_lv2_3.png
+//Common/guis/guis_cooperation/icon_reward_lv3_1.png
+//Common/guis/guis_cooperation/icon_reward_lv3_2.png
+//Common/guis/guis_cooperation/icon_reward_lv3_3.png
+//Common/guis/guis_cooperation/icon_reward_lv4_1.png
+//Common/guis/guis_cooperation/icon_reward_lv4_2.png
+//Common/guis/guis_cooperation/icon_reward_lv4_3.png
+//";
+
+        List<List<AssetData>> list = new List<List<AssetData>>();
         Dictionary<int, bool> isSetDict = new Dictionary<int, bool>();
 
         private bool fold_find = true;
@@ -58,20 +75,76 @@ BlackSkin";
             GUILayout.Space(30);
 
             DrawList();
+
+            GUILayout.Space(30);
+            DrawItemTool();
+        }
+
+
+        private void DrawItemTool()
+        {
+            EditorGUILayout.BeginHorizontal();
+          
+
+            if (GUILayout.Button("全部移至Common", GUILayout.Width(100), GUILayout.Height(30)))
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    List<AssetData> md5files = list[i];
+                    foreach(AssetData assetData in md5files)
+                    {
+                        assetData.MoveToCommon();
+                    }
+                }
+            }
+
+
+
+            if (GUILayout.Button("优先使用Common", GUILayout.Width(100), GUILayout.Height(30)))
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    List<AssetData> md5files = list[i];
+                    AssetData commonAsset = null;
+                    foreach (AssetData assetData in md5files)
+                    {
+                        if(assetData.package.folderName == "Common")
+                        {
+                            if (commonAsset == null)
+                                commonAsset = assetData;
+                            else if (assetData.beDependCount > commonAsset.beDependCount)
+                                commonAsset = assetData;
+
+                        }
+                    }
+
+                    if (commonAsset != null)
+                        SetMainRes(i, md5files, commonAsset);
+                }
+            }
+
+
+
+            EditorGUILayout.EndHorizontal();
         }
 
         private void DrawFind()
         {
             EditorGUILayout.BeginVertical(HStyle.boxMarginLeftStyle);
 
-            GUILayout.Box("资源目录：(用'换行'分隔)");
+            GUILayout.Box("忽略包名：(用'换行'分隔)");
             ignorePackageStr = GUILayout.TextArea(ignorePackageStr, 500, GUILayout.MinHeight(50));
             ignorePackageStr = ignorePackageStr.Trim();
-
-
-
-
             GUILayout.Space(20);
+
+
+            GUILayout.Box("代码引用：(用'换行'分隔)");
+            codeUsesStr = GUILayout.TextArea(codeUsesStr, 500, GUILayout.MinHeight(50));
+            codeUsesStr = codeUsesStr.Trim();
+            GUILayout.Space(20);
+
+            FairyManager.Instance.ignorePackageStr = ignorePackageStr;
+            FairyManager.Instance.codeUsesStr = codeUsesStr;
 
             if (GUILayout.Button("查找", GUILayout.Height(50)))
             {
@@ -81,11 +154,19 @@ BlackSkin";
 
             if (GUILayout.Button("打开 清除没用被用的资源 窗口", GUILayout.Height(30)))
             {
-                //GameGUIDClearNoUseEditorWindow.Open();
+                FguiClearNoUseEditorWindow.Open();
             }
 
             EditorGUILayout.EndVertical();
 
+        }
+
+        void Find()
+        {
+            FairyManager.Instance.LoadProject(Setting.Options.fairyProject);
+            FairyManager.Instance.GenerateMD5();
+            list = FairyManager.Instance.simpleMD5List;
+            isSetDict.Clear();
         }
 
 
@@ -111,10 +192,13 @@ BlackSkin";
             GUILayout.Label("Index", HStyle.labelTableHeadStyle, GUILayout.Width(160), GUILayout.Height(height));
             GUILayout.Space(10);
 
-            GUILayout.Label("操作", HStyle.labelTableHeadStyle, GUILayout.Width(500), GUILayout.Height(height));
+            GUILayout.Label("操作", HStyle.labelTableHeadStyle, GUILayout.Width(300), GUILayout.Height(height));
             GUILayout.Space(10);
 
             GUILayout.Label("引用次数", HStyle.labelTableHeadStyle, GUILayout.Width(width), GUILayout.Height(height));
+            GUILayout.Space(10);
+
+            GUILayout.Label("是否设置为导出", HStyle.labelTableHeadStyle, GUILayout.Width(width), GUILayout.Height(height));
             GUILayout.Space(10);
 
             GUILayout.Label("文件", HStyle.labelTableHeadStyle, GUILayout.Height(height));
@@ -124,7 +208,7 @@ BlackSkin";
         }
 
 
-        private void DrawItem(int index, List<FileData> md5files)
+        private void DrawItem(int index, List<AssetData> md5files)
         {
 
             int width = 100;
@@ -143,7 +227,7 @@ BlackSkin";
             {
 
                 EditorGUILayout.BeginHorizontal();
-                FileData file = md5files[i];
+                AssetData file = md5files[i];
 
                 if (GUILayout.Button("选中", HStyle.boxMiddleCenterStyle, GUILayout.Width(100), GUILayout.Height(height)))
                 {
@@ -151,56 +235,44 @@ BlackSkin";
                 }
 
 
-                if (GUILayout.Button("GUID旧资源", HStyle.boxMiddleCenterStyle, GUILayout.Width(100), GUILayout.Height(height)))
-                {
-                    //GUIDRefReplaceWindow.SetGUIDOld(file.path);
-                }
-
-                if (GUILayout.Button("GUID新资源", HStyle.boxMiddleCenterStyle, GUILayout.Width(100), GUILayout.Height(height)))
-                {
-                    //GUIDRefReplaceWindow.SetGUIDNew(file.path);
-                }
-
-
-
                 if (GUILayout.Button("设为主资源", HStyle.boxMiddleCenterStyle, GUILayout.Width(100), GUILayout.Height(height)))
                 {
-                    //if (GameGUIDClearNoUseEditorWindow.window != null)
-                    //{
-                    //    SetMainRes(index, md5files, file);
-                    //}
-                    //else
-                    //{
-                    //    this.ShowNotification(new GUIContent("先去打开\"清除没用的资源面板\"点击查找"));
-                    //}
 
+                    SetMainRes(index, md5files, file);
+
+                }
+
+
+
+                if (GUILayout.Button("移至 Common", HStyle.boxMiddleCenterStyle, GUILayout.Width(100), GUILayout.Height(height)))
+                {
+                    file.MoveToCommon();
                 }
 
 
                 if (GUILayout.Button("引用详情", HStyle.boxMiddleCenterStyle, GUILayout.Width(100), GUILayout.Height(height)))
                 {
-                    //if (GameGUIDClearNoUseEditorWindow.window != null)
-                    //{
-                    //    GameGUIDClearNoUseEditorWindow.window.OpenDetail(file.guid);
-                    //}
-                    //else
-                    //{
-                    //    this.ShowNotification(new GUIContent("先去打开\"清除没用的资源面板\"点击查找"));
-                    //}
+                    FguiRefDetailsEditorWindow.Open(file);
+                }
+
+                if (GUILayout.Button("打开 Common", HStyle.boxMiddleCenterStyle, GUILayout.Width(100), GUILayout.Height(height)))
+                {
+                    file.ShowInExplorerForCommon();
+                }
+
+                bool export = GUILayout.Toggle(file.exported, "是否导出", GUILayout.Width(100), GUILayout.Height(height));
+                if(export != file.exported)
+                {
+                    file.package.SetImageExport(file, export);
                 }
 
 
 
                 GUILayout.Space(10);
-                string refNumStr = "--";
-                //if (GameGUIDClearNoUseEditorWindow.window != null)
-                //{
-                //    refNumStr = GameGUIDClearNoUseEditorWindow.window.GetRefNumStr(file.guid);
-                //}
-                GUILayout.Label(refNumStr, GUILayout.Width(width), GUILayout.Height(height));
+                GUILayout.Label(file.beDependCount.ToString(), GUILayout.Width(width), GUILayout.Height(height));
 
                 GUILayout.Space(10);
-                GUILayout.Label(file.path, GUILayout.Height(height));
+                GUILayout.Label(file.pathForAssets, GUILayout.Height(height));
                 EditorGUILayout.EndHorizontal();
             }
             EditorGUILayout.EndVertical();
@@ -209,118 +281,25 @@ BlackSkin";
             EditorGUILayout.EndHorizontal();
         }
 
-        private void SetMainRes(int index, List<FileData> md5files, FileData main)
+        private void SetMainRes(int index, List<AssetData> md5files, AssetData main)
         {
-            foreach (FileData item in md5files)
+            foreach (AssetData item in md5files)
             {
                 if (item == main)
                     continue;
 
-                //CaheFile file = GameGUIDClearNoUseEditorWindow.window.GetClearFile(item.guid);
 
-                //foreach (CaheFile refFile in file.refList)
-                //{
-                //    var content = File.ReadAllText(refFile.filename);
-                //    if (Regex.IsMatch(content, item.guid))
-                //    {
-                //        Debug.Log(refFile.filename, AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(refFile.filename));
+                foreach (AssetData refFile in item.beDependList)
+                {
+                    refFile.ReplaceImage(item, main);
+                }
 
-                //        content = content.Replace(item.guid, main.guid);
-                //        File.WriteAllText(refFile.filename, content);
-                //    }
-                //}
+                item.package.SetImageExport(item, false);
             }
 
+            main.package.SetImageExport(main, true);
 
             isSetDict[index] = true;
-        }
-
-
-        private void Find()
-        {
-
-            fileDict = new Dictionary<string, FileData>();
-            md5Dict = new Dictionary<string, List<FileData>>();
-            isSetDict.Clear();
-
-            string[] files;
-
-            // 查找资源目录
-            string[] folders = ignorePackageStr.Split('\n');
-            for (int i = 0; i < folders.Length; i++)
-            {
-                string folder = folders[i];
-                folder = folder.Trim();
-
-                if (string.IsNullOrEmpty(folder))
-                    continue;
-
-                files = Directory.GetFiles(folder, "*.*", SearchOption.AllDirectories).Where(s => Path.GetExtension(s).ToLower() != ".meta").ToArray();
-
-                GenerateFiles(files);
-            }
-
-
-            list.Clear();
-
-            foreach (var kvp in md5Dict)
-            {
-                if (kvp.Value.Count > 1)
-                {
-                    list.Add(kvp.Value);
-                }
-            }
-
-            for (int i = 0; i < list.Count; i++)
-            {
-                for (int j = 0; j < list[i].Count; j++)
-                {
-                    list[i][j].guid = AssetDatabase.AssetPathToGUID(list[i][j].path);
-                }
-            }
-        }
-
-
-        Dictionary<string, FileData> fileDict = new Dictionary<string, FileData>();
-        Dictionary<string, List<FileData>> md5Dict = new Dictionary<string, List<FileData>>();
-        void GenerateFiles(string[] files)
-        {
-
-
-            for (int i = 0; i < files.Length; i++)
-            {
-                EditorUtility.DisplayProgressBar("查找相同的文件", files[i], i * 1f / files.Length);
-                FileData file = new FileData();
-                file.path = files[i];
-                file.md5 = PathUtil.md5file(file.path);
-
-                fileDict.Add(file.path, file);
-
-                List<FileData> list = null;
-                if (md5Dict.ContainsKey(file.md5))
-                {
-                    list = md5Dict[file.md5];
-                }
-                else
-                {
-                    list = md5Dict[file.md5] = new List<FileData>();
-                }
-
-                list.Add(file);
-            }
-
-            EditorUtility.ClearProgressBar();
-
-
-
-        }
-
-
-        public class FileData
-        {
-            public string guid;
-            public string path;
-            public string md5;
         }
 
     }

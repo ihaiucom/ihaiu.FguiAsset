@@ -133,17 +133,28 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Editor\EditorFguiAsset\Datas\FguiComponentType.cs" />
+    <Compile Include="Assets\Editor\EditorFguiAsset\Datas\Nodes.cs" />
+    <Compile Include="Assets\Editor\EditorFguiAsset\Datas\Package.cs" />
     <Compile Include="Assets\Editor\EditorFguiAsset\Datas\AssetData.cs" />
-    <Compile Include="Assets\Editor\EditorFguiAsset\Datas\FguiData.cs" />
-    <Compile Include="Assets\Editor\EditorFguiAsset\Datas\PackageData.cs" />
-    <Compile Include="Assets\Editor\EditorFguiAsset\FguiSetting.cs" />
+    <Compile Include="Assets\Editor\EditorFguiAsset\Datas\ResourceComponentType.cs" />
+    <Compile Include="Assets\Editor\EditorFguiAsset\FguiMenuEditor.cs" />
     <Compile Include="Assets\Editor\EditorFguiAsset\FguiSimpleFileEditorWindow.cs" />
+    <Compile Include="Assets\Editor\EditorFguiAsset\FguiRefDetailsEditorWindow.cs" />
+    <Compile Include="Assets\Editor\EditorFguiAsset\FguiClearNoUseEditorWindow.cs" />
+    <Compile Include="Assets\Editor\EditorFguiAsset\FguiClearNoUseEditorWindow_List.cs" />
+    <Compile Include="Assets\Editor\EditorFguiAsset\Reader\ComponentReader.cs" />
+    <Compile Include="Assets\Editor\EditorFguiAsset\Reader\FairyManager.cs" />
+    <Compile Include="Assets\Editor\EditorFguiAsset\Reader\PackageReader.cs" />
+    <Compile Include="Assets\Editor\EditorFguiAsset\Setting\Options.cs" />
+    <Compile Include="Assets\Editor\EditorFguiAsset\Setting\Setting.cs" />
     <Compile Include="Assets\Editor\EditorGUID\GameFindEmpyFolderEditorWindow.cs" />
     <Compile Include="Assets\Editor\EditorGUID\GameFindSimpleFileEditorWindow.cs" />
     <Compile Include="Assets\Editor\EditorGUID\GameGUIDClearNoUseEditorWindow.cs" />
     <Compile Include="Assets\Editor\EditorGUID\GameGUIDClearNoUseEditorWindow_List.cs" />
     <Compile Include="Assets\Editor\EditorGUID\GameGUIDRefDetailsEditorWindow.cs" />
     <Compile Include="Assets\Editor\EditorGUID\GameGUIDRefFindInSceneEditorWindow.cs" />
+    <Compile Include="Assets\Editor\EditorLib\EditorTexture2D.cs" />
     <Compile Include="Assets\Editor\EditorLib\HGUI_CenterHorizontal.cs" />
     <Compile Include="Assets\Editor\EditorLib\HGUI_MiddleVertical.cs" />
     <Compile Include="Assets\Editor\EditorLib\HGUI_TabGoup_Demo.cs" />
@@ -151,7 +162,6 @@
     <Compile Include="Assets\Editor\EditorLib\HStyle.cs" />
     <Compile Include="Assets\Editor\EditorLib\HStyle_Box.cs" />
     <Compile Include="Assets\Editor\EditorLib\Test_HGUI.cs" />
-    <Compile Include="Assets\Editor\EditorFguiAsset\FguiMenuEditor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Plugins\Libs\JsonDotNet\ReadMe.txt" />
