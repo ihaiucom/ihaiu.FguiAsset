@@ -112,6 +112,22 @@ namespace EditorFguiAssets
             return null;
         }
 
+        public List<AssetData> GetAssetDataForGearIcon(string icons)
+        {
+            if (!string.IsNullOrEmpty(icons))
+            {
+                List<AssetData> list = new List<AssetData>();
+                string[] arr = icons.Split('|');
+                for(int i = 0; i < arr.Length; i ++)
+                {
+                    list.Add(GetAssetDataByUrl(arr[i]));
+                }
+                return list;
+
+            }
+            return null;
+        }
+
         public AssetData GetAssetDataByUrl(string url)
         {
             if (!string.IsNullOrEmpty(url))
@@ -280,6 +296,29 @@ namespace EditorFguiAssets
                                     if (node.buttonSelectIconAssetData != null)  node.buttonSelectIconAssetData.beDependList.Add(component);
                                 }
                             }
+
+                            // 控制器中依赖的资源
+                            if(!string.IsNullOrEmpty(node.gearIconUrls))
+                            {
+                                node.gearIconAssetDatas = GetAssetDataForGearIcon(node.gearIconUrls);
+                                if(node.gearIconAssetDatas != null)
+                                {
+                                    for (int ii = 0; ii < node.gearIconAssetDatas.Count; ii++)
+                                    {
+                                        AssetData gearIcon = node.gearIconAssetDatas[ii];
+                                        if (gearIcon != null)
+                                            gearIcon.beDependList.Add(component);
+                                    }
+                                }
+                            }
+
+                            if (!string.IsNullOrEmpty(node.gearDefault))
+                            {
+
+                                node.gearDefaultAssetData = GetAssetDataByUrl(node.gearDefault);
+                                if (node.gearDefaultAssetData != null) node.gearDefaultAssetData.beDependList.Add(component);
+
+                            }
                         }
                     }
                 }
@@ -342,6 +381,23 @@ namespace EditorFguiAssets
                 if (node.buttonSelectIconAssetData != null)
                 {
                     root.AddDependPackage(node.buttonSelectIconAssetData.package);
+                }
+
+
+                if (node.gearIconAssetDatas != null)
+                {
+                    for (int ii = 0; ii < node.gearIconAssetDatas.Count; ii++)
+                    {
+                        AssetData gearIcon = node.gearIconAssetDatas[ii];
+                        if (gearIcon != null)
+                            root.AddDependPackage(gearIcon.package);
+                    }
+                }
+
+
+                if (node.gearDefaultAssetData != null)
+                {
+                    root.AddDependPackage(node.gearDefaultAssetData.package);
                 }
             }
         }

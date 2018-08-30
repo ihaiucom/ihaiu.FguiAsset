@@ -288,11 +288,7 @@ BlackSkin";
                 if (item == main)
                     continue;
 
-
-                foreach (AssetData refFile in item.beDependList)
-                {
-                    refFile.ReplaceImage(item, main);
-                }
+                item.BeDependListReplace(main);
 
                 item.package.SetImageExport(item, false);
             }

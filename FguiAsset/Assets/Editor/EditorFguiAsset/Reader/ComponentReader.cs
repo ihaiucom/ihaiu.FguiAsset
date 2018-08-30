@@ -47,7 +47,7 @@ namespace EditorFguiAssets
                         foreach (XmlNode displayNode in displayNodeList)
                         {
 
-                            Node fguiNode;
+                            Node fguiNode = null;
                             string pkg = null;
                             string src = null;
                             string nodeName = displayNode.Attributes.GetNamedItem("name").InnerText;
@@ -126,6 +126,8 @@ namespace EditorFguiAssets
                                     }
                                     fguiNode = new Node() { name = nodeName, type = fairygui.CommonName.GLoader, url = url };
                                     resourceComponent.AddNode(fguiNode);
+
+
                                     break;
 
                                 // 列表
@@ -196,6 +198,20 @@ namespace EditorFguiAssets
                                     break;
 
                             }
+
+                            if(fguiNode != null)
+                            {
+                                XmlElement gearIcon = (XmlElement)displayNode.SelectSingleNode("gearIcon");
+                                if (gearIcon != null)
+                                {
+                                    if (gearIcon.HasAttribute("values"))
+                                        fguiNode.gearIconUrls = gearIcon.GetAttribute("values");
+
+                                    if (gearIcon.HasAttribute("default"))
+                                        fguiNode.gearDefault = gearIcon.GetAttribute("default");
+                                }
+                            }
+
                         }
                         break;
                 }

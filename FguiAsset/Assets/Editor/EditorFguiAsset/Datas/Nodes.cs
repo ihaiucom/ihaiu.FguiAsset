@@ -21,6 +21,11 @@ namespace EditorFguiAssets
 
         // 装置器使用的资源
         public string url;
+        // 装载器中控制器使用的资源列表
+        public string gearIconUrls;
+        public List<AssetData> gearIconAssetDatas = new List<AssetData>();
+        public string gearDefault;
+        public AssetData gearDefaultAssetData;
         // 列表使用的资源
         public string defaultItem;
 

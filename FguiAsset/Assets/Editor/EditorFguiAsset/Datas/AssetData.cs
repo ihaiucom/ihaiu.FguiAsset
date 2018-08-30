@@ -303,6 +303,16 @@ namespace EditorFguiAssets
         // 如果是组件
         public XmlDocument xmlDocument;
 
+        // 被依赖的资源替换
+        public void BeDependListReplace(AssetData dest)
+        {
+
+            foreach (AssetData refFile in beDependList)
+            {
+                refFile.ReplaceImage(this, dest);
+            }
+        }
+
         // 替换图片引用
         public void ReplaceImage(AssetData item, AssetData main)
         {
@@ -347,6 +357,8 @@ namespace EditorFguiAssets
                 item.package.id, main.package.id,
                 item.fileNameForPackage, main.fileNameForPackage
                 );
+
+
         }
 
         public void ReplaceImage(string srcUrl, string destUrl, 
@@ -387,6 +399,22 @@ namespace EditorFguiAssets
             foreach (XmlElement xn in xnList)
             {
                 xn.SetAttribute("selectedIcon", destUrl);
+            }
+
+            xnList = xmlDocument.SelectNodes("//gearIcon");
+            foreach (XmlElement xn in xnList)
+            {
+                if(xn.HasAttribute("values"))
+                {
+                    if(xn.GetAttribute("values").IndexOf(srcUrl) != - 1)
+                        xn.SetAttribute("values", xn.GetAttribute("values").Replace(srcUrl, destUrl));
+                }
+
+                if(xn.HasAttribute("default"))
+                {
+                    if (xn.GetAttribute("default") == srcUrl)
+                        xn.SetAttribute("default", destUrl);
+                }
             }
 
             xmlDocument.Save(pathForFull);
