@@ -39,7 +39,9 @@ namespace EditorFguiAssets
         private string ignorePackageStr =
 @"System
 Sound
-BlackSkin";
+BlackSkin
+__ResImageTmp
+__Style";
 
         // 代码引用
         private string codeUsesStr = "";

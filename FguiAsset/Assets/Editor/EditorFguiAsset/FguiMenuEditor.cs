@@ -27,6 +27,13 @@ namespace EditorFguiAssets
             FguiClearNoUseEditorWindow.Open();
         }
 
+        [MenuItem("Fgui资源/清理空文件夹")]
+        public static void OpenClearEmpyFolder()
+        {
+            FguiFindEmpyFolderEditorWindow.Open();
+        }
+
+
 
     }
 
